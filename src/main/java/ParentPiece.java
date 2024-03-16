@@ -1,6 +1,6 @@
-public abstract class ParentPiece {
-    private boolean isCaptured() {
-        return this.isCaptured();
-    }
-
-}
+//public abstract class ParentPiece {
+//    private boolean isCaptured() {
+//        return this.isCaptured();
+//    }
+//
+//}

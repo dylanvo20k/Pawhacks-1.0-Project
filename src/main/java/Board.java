@@ -1,10 +1,7 @@
-import src.main.java.Pieces;
-
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-
 
 public class Board {
     protected static final int BOARD_SIZE = 8;
@@ -44,8 +41,12 @@ public class Board {
                 }
             } else {
                 int color = Character.isUpperCase(c) ? Pieces.WHITE : Pieces.BLACK;
+                System.out.println(c);
                 int pieceType = fenToPiece(Character.toUpperCase(c));
-                SQUARE[row][col++] = new Pieces(pieceType, color);
+                SQUARE[row][col] = new Pieces(pieceType, color);
+                SQUARE[row][col].setRow(row);
+                SQUARE[row][col].setCol(col);
+                col++;
             }
         }
     }

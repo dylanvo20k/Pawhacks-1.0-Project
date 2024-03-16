@@ -1,3 +1,3 @@
-public class King extends ParentPiece {
-
-}
+//public class King extends ParentPiece {
+//
+//}

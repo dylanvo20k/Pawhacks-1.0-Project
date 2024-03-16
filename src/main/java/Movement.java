@@ -14,6 +14,7 @@ public class Movement {
         } else {
             // Move the selected piece to the clicked square
             Board.SQUARE[row][col] = Board.selectedPiece;
+            System.out.println(Board.selectedPiece.getRow() + ", " + Board.selectedPiece.getCol());
             Board.SQUARE[Board.selectedPiece.getRow()][Board.selectedPiece.getCol()] = null;
             Board.selectedPiece.setRow(row);
             Board.selectedPiece.setCol(col);
