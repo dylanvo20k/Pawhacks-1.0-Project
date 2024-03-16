@@ -1,21 +1,19 @@
 import javax.swing.*;
 import java.awt.*;
-import java.awt.image.BufferedImage;
-import javax.imageio.ImageIO;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
 public class Board {
-    private static final int BOARD_SIZE = 8;
+    protected static final int BOARD_SIZE = 8;
     private static final int SQUARE_SIZE = 100; // Size of each square
     private static final String ICONS_PATH = "resources/";
     private static final String START_FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+    protected static JPanel[][] squares = new JPanel[BOARD_SIZE][BOARD_SIZE];
+    protected static Pieces selectedPiece = null;
 
 
     // 2D array to represent pieces on the board
-    private static Pieces[][] SQUARE = new Pieces[BOARD_SIZE][BOARD_SIZE];
-
+    protected static Pieces[][] SQUARE = new Pieces[BOARD_SIZE][BOARD_SIZE];
     public static void main(String[] args) {
         // Set initial pieces
         initializeBoard(START_FEN);
@@ -81,27 +79,28 @@ public class Board {
             for (int col = 0; col < BOARD_SIZE; col++) {
                 JPanel square = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
                 square.setPreferredSize(new Dimension(SQUARE_SIZE, SQUARE_SIZE));
-                square.setBackground((row + col) % 2 == 0 ? brown : lightBrown);
+                square.setBackground((row + col) % 2 == 0 ? lightBrown : brown);
 
-                // Check if there's a piece on this square
-                if (SQUARE[row][col] != null) {
-                    try {
-                        // Load and display the piece icon
-                        String imagePath = getPieceImagePath(SQUARE[row][col]);
-                        BufferedImage image = ImageIO.read(new FileInputStream(imagePath));
-                        square.add(new JLabel(new ImageIcon(image)));
-                    } catch (IOException e) {
-                        // Handle image loading error
-                        e.printStackTrace();
+                final int r = row;
+                final int c = col;
+
+                square.addMouseListener(new MouseAdapter() {
+                    @Override
+                    public void mousePressed(MouseEvent e) {
+                        Movement.handleSquareClick(r, c);
                     }
-                }
+                });
+
+                squares[row][col] = square;
                 panel.add(square);
             }
         }
+        Movement.updateBoard();
     }
 
+
     // Get the file path for the piece icon based on the piece type and color
-    private static String getPieceImagePath(Pieces piece) {
+    protected static String getPieceImagePath(Pieces piece) {
         String color = piece.getPieceColor() == Pieces.WHITE ? "white" : "black";
         String type = "";
         switch (piece.getPieceType()) {
