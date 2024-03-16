@@ -41,8 +41,12 @@ public class Board {
                 }
             } else {
                 int color = Character.isUpperCase(c) ? Pieces.WHITE : Pieces.BLACK;
+                System.out.println(c);
                 int pieceType = fenToPiece(Character.toUpperCase(c));
-                SQUARE[row][col++] = new Pieces(pieceType, color);
+                SQUARE[row][col] = new Pieces(pieceType, color);
+                SQUARE[row][col].setRow(row);
+                SQUARE[row][col].setCol(col);
+                col++;
             }
         }
     }
