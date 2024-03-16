@@ -22,11 +22,13 @@ public class Board {
     }
 
     private static void addSquares(JPanel panel) {
+        Color brown = new Color(135, 75, 45);
+        Color lightBrown = new Color(222, 177, 155);
         for (int row = 0; row < BOARD_SIZE; row++) {
             for (int col = 0; col < BOARD_SIZE; col++) {
                 JPanel square = new JPanel();
                 square.setPreferredSize(new Dimension(SQUARE_SIZING, SQUARE_SIZING));
-                square.setBackground((row + col) % 2 == 0 ? Color.WHITE : Color.BLACK);
+                square.setBackground((row + col) % 2 == 0 ? brown : lightBrown);
                 panel.add(square);
             }
         }
