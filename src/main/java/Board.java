@@ -10,42 +10,55 @@ public class Board {
     private static final int BOARD_SIZE = 8;
     private static final int SQUARE_SIZE = 100; // Size of each square
     private static final String ICONS_PATH = "resources/";
+    private static final String START_FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+
 
     // 2D array to represent pieces on the board
     private static Pieces[][] SQUARE = new Pieces[BOARD_SIZE][BOARD_SIZE];
 
     public static void main(String[] args) {
         // Set initial pieces
-        initializeBoard();
+        initializeBoard(START_FEN);
 
         SwingUtilities.invokeLater(Board::createAndShowGUI);
     }
+    // This method parses a FEN String (standard notation in chess) and translate it into a 2D array.
+    // Given a FEN String, it populates the array with pieces using the helper.
+    private static void initializeBoard(String fen) {
+        // Split FEN String Notation
+        String[] parts = fen.split(" ");
+        String boardState = parts[0];
 
-    private static void initializeBoard() {
-        // Set white pieces
-        SQUARE[0][0] = new Pieces(Pieces.ROOK, Pieces.WHITE);
-        SQUARE[0][1] = new Pieces(Pieces.KNIGHT, Pieces.WHITE);
-        SQUARE[0][2] = new Pieces(Pieces.BISHOP, Pieces.WHITE);
-        SQUARE[0][3] = new Pieces(Pieces.QUEEN, Pieces.WHITE);
-        SQUARE[0][4] = new Pieces(Pieces.KING, Pieces.WHITE);
-        SQUARE[0][5] = new Pieces(Pieces.BISHOP, Pieces.WHITE);
-        SQUARE[0][6] = new Pieces(Pieces.KNIGHT, Pieces.WHITE);
-        SQUARE[0][7] = new Pieces(Pieces.ROOK, Pieces.WHITE);
-        for (int col = 0; col < BOARD_SIZE; col++) {
-            SQUARE[1][col] = new Pieces(Pieces.PAWN, Pieces.WHITE);
+        // Convert FEN notation to 2D array
+        int row = 0;
+        int col = 0;
+        for (char c : boardState.toCharArray()) {
+            if (c == '/') {
+                row++;
+                col = 0;
+            } else if (Character.isDigit(c)) {
+                int emptySpaces = Character.getNumericValue(c);
+                for (int i = 0; i < emptySpaces; i++) {
+                    SQUARE[row][col++] = null;
+                }
+            } else {
+                int color = Character.isUpperCase(c) ? Pieces.WHITE : Pieces.BLACK;
+                int pieceType = fenToPiece(Character.toUpperCase(c));
+                SQUARE[row][col++] = new Pieces(pieceType, color);
+            }
         }
+    }
 
-        // Set black pieces
-        SQUARE[7][0] = new Pieces(Pieces.ROOK, Pieces.BLACK);
-        SQUARE[7][1] = new Pieces(Pieces.KNIGHT, Pieces.BLACK);
-        SQUARE[7][2] = new Pieces(Pieces.BISHOP, Pieces.BLACK);
-        SQUARE[7][3] = new Pieces(Pieces.QUEEN, Pieces.BLACK);
-        SQUARE[7][4] = new Pieces(Pieces.KING, Pieces.BLACK);
-        SQUARE[7][5] = new Pieces(Pieces.BISHOP, Pieces.BLACK);
-        SQUARE[7][6] = new Pieces(Pieces.KNIGHT, Pieces.BLACK);
-        SQUARE[7][7] = new Pieces(Pieces.ROOK, Pieces.BLACK);
-        for (int col = 0; col < BOARD_SIZE; col++) {
-            SQUARE[6][col] = new Pieces(Pieces.PAWN, Pieces.BLACK);
+    // Helper method to convert FEN notation to piece type
+    private static int fenToPiece(char c) {
+        switch (c) {
+            case 'P': return Pieces.PAWN;
+            case 'N': return Pieces.KNIGHT;
+            case 'B': return Pieces.BISHOP;
+            case 'R': return Pieces.ROOK;
+            case 'Q': return Pieces.QUEEN;
+            case 'K': return Pieces.KING;
+            default: return -1; // Invalid piece type
         }
     }
 
