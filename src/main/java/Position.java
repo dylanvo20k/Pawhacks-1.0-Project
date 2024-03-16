@@ -1,3 +1,4 @@
+package src.main.java;
 
 public class Position {
         private int currentX;
@@ -15,8 +16,10 @@ public class Position {
         private void isValidMove() {
 
         }
-        private boolean isCaptured() {
-                return this.isCaptured();
+
+        public Position currentSquare(int row, int col) {
+                return Pieces[row][col];
         }
+
 
 }
