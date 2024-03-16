@@ -66,7 +66,7 @@ public class Board {
         Color lightBrown = new Color(222, 177, 155);
         for (int row = 0; row < BOARD_SIZE; row++) {
             for (int col = 0; col < BOARD_SIZE; col++) {
-                JPanel square = new JPanel();
+                JPanel square = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
                 square.setPreferredSize(new Dimension(SQUARE_SIZE, SQUARE_SIZE));
                 square.setBackground((row + col) % 2 == 0 ? brown : lightBrown);
 
