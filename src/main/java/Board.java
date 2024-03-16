@@ -3,12 +3,13 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import javax.imageio.ImageIO;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 
 public class Board {
     private static final int BOARD_SIZE = 8;
     private static final int SQUARE_SIZE = 100; // Size of each square
-    private static final String ICONS_PATH = "Pawhacks-1.0-Project/src/main/resources/";
+    private static final String ICONS_PATH = "resources/";
 
     // 2D array to represent pieces on the board
     private static Pieces[][] SQUARE = new Pieces[BOARD_SIZE][BOARD_SIZE];
@@ -73,14 +74,14 @@ public class Board {
                 if (SQUARE[row][col] != null) {
                     try {
                         // Load and display the piece icon
-                        BufferedImage image = ImageIO.read(new File(getPieceImagePath(SQUARE[row][col])));
+                        String imagePath = getPieceImagePath(SQUARE[row][col]);
+                        BufferedImage image = ImageIO.read(new FileInputStream(imagePath));
                         square.add(new JLabel(new ImageIcon(image)));
                     } catch (IOException e) {
-                        // Handle image loading error 
-                        System.err.println("Error loading image.");
+                        // Handle image loading error
+                        e.printStackTrace();
                     }
                 }
-
                 panel.add(square);
             }
         }
@@ -110,6 +111,7 @@ public class Board {
                 type = "King";
                 break;
         }
+        //System.out.println(ICONS_PATH + color + type + ".png");
         return ICONS_PATH + color + type + ".png";
     }
 }
