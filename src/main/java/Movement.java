@@ -12,15 +12,23 @@ public class Movement {
                 Board.selectedPiece = clickedPiece;
             }
         } else {
-            // Move the selected piece to the clicked square
-            Board.SQUARE[row][col] = Board.selectedPiece;
-            System.out.println(Board.selectedPiece.getRow() + ", " + Board.selectedPiece.getCol());
-            Board.SQUARE[Board.selectedPiece.getRow()][Board.selectedPiece.getCol()] = null;
-            Board.selectedPiece.setRow(row);
-            Board.selectedPiece.setCol(col);
-            Board.selectedPiece = null;
-            updateBoard();
+            if (clickedPiece == null || !isSameTeam(Board.selectedPiece, clickedPiece)) {
+                // Move the selected piece to the clicked square
+                Board.SQUARE[row][col] = Board.selectedPiece;
+                System.out.println(Board.selectedPiece.getRow() + ", " + Board.selectedPiece.getCol());
+                Board.SQUARE[Board.selectedPiece.getRow()][Board.selectedPiece.getCol()] = null;
+                Board.selectedPiece.setRow(row);
+                Board.selectedPiece.setCol(col);
+                Board.selectedPiece = null;
+                updateBoard();
+            } else {
+                // Pieces on the same team, do not allow capturing
+                System.out.println("Cannot capture a piece on the same team.");
+            }
         }
+    }
+    protected static boolean isSameTeam(Pieces piece1, Pieces piece2) {
+        return piece1.getPieceColor() == piece2.getPieceColor();
     }
 
     protected static void updateBoard() {
