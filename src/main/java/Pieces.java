@@ -9,11 +9,11 @@ public class Pieces {
     public static final int WHITE = 7;
     public static final int BLACK = 8;
 
-    private int pieceType;
-    private int pieceColor;
+     int pieceType;
+     int pieceColor;
     private int col;
     private int row;
-    private boolean firstMove = true;
+    boolean firstMove = true;
 
 
     public Pieces(int pieceType, int pieceColor) {
@@ -44,4 +44,9 @@ public class Pieces {
     public void setCol(int col) {
         this.col = col;
     }
+    public void setPosition(int x, int y) {
+        this.col = x / Board.SQUARE_SIZE; // Calculate the column based on the x-coordinate
+        this.row = y / Board.SQUARE_SIZE; // Calculate the row based on the y-coordinate
+    }
 }
+

@@ -5,7 +5,7 @@ import java.awt.event.MouseEvent;
 
 public class Board {
     protected static final int BOARD_SIZE = 8;
-    private static final int SQUARE_SIZE = 100; // Size of each square
+    protected static final int SQUARE_SIZE = 100; // Size of each square
     private static final String ICONS_PATH = "resources/";
     private static final String START_FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
     protected static JPanel[][] squares = new JPanel[BOARD_SIZE][BOARD_SIZE];
@@ -123,7 +123,7 @@ public class Board {
                 type = "King";
                 break;
         }
-        //System.out.println(ICONS_PATH + color + type + ".png");
+        // System.out.println(ICONS_PATH + color + type + ".png");
         return ICONS_PATH + color + type + ".png";
     }
 }
