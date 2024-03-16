@@ -25,4 +25,5 @@ public class Pieces {
     public int getPieceColor() {
         return pieceColor;
     }
+    private int pieceValue;
 }
