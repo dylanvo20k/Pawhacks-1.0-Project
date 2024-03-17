@@ -61,18 +61,36 @@ public class Board extends JPanel {
     }
 
     public void paintComponent(Graphics g) {
+        super.paintComponent(g); // Call the superclass method first
+
         Graphics2D g2d = (Graphics2D) g;
+
+        // Draw the board squares
         for (int r = 0; r < rows; r++) {
             for (int c = 0; c < cols; c++) {
                 g2d.setColor((c + r) % 2 == 0 ? brown : lightBrown);
                 g2d.fillRect(c * squareSize, r * squareSize, squareSize, squareSize);
             }
+        }
 
-            for (Pieces piece : pieceList) {
-                piece.paint(g2d);
+        // Highlight valid moves if a piece is selected
+        if (selectedPiece != null) {
+            for (int r = 0; r < rows; r++) {
+                for (int c = 0; c < cols; c++) {
+                    if (isValidMove(new Move(this, selectedPiece, c, r))) {
+                        g2d.setColor(new Color(91, 159, 92));
+                        g2d.fillRect(c * squareSize, r * squareSize, squareSize, squareSize);
+                    }
+                }
             }
         }
+
+        // Draw pieces on the board
+        for (Pieces piece : pieceList) {
+            piece.paint(g2d);
+        }
     }
+
 
     public Pieces getPiece(int col, int row) {
         for (Pieces piece : pieceList) {
@@ -84,6 +102,12 @@ public class Board extends JPanel {
     }
     public boolean isValidMove(Move move) {
         if (sameTeam(move.piece, move.capture)) {
+            return false;
+        }
+        if (!move.piece.isValidMovement(move.newCol, move.newRow)) {
+            return false;
+        }
+        if(move.piece.moveCollides(move.newCol, move.newRow)) {
             return false;
         }
         return true;
