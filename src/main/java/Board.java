@@ -1,9 +1,7 @@
 import javax.swing.*;
 import java.awt.*;
-import java.io.BufferedReader;
-import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.Random;
+import java.awt.List;
+import java.util.*;
 
 public class Board extends JPanel {
     int rows = 8;
@@ -20,10 +18,15 @@ public class Board extends JPanel {
     public int enPassantTile = -1;
     public CheckScanner checkScanner = new CheckScanner(this);
     protected boolean whiteTurn = true;
-    private Process stockfishProcess;
-    private BufferedReader stockfishInput;
-    private PrintWriter stockfishOutput;
+    private static final int PAWN_VALUE = 1;
+    private static final int KNIGHT_VALUE = 3;
+    private static final int BISHOP_VALUE = 3;
+    private static final int ROOK_VALUE = 5;
+    private static final int QUEEN_VALUE = 9;
     GameMode mode = GameMode.PLAYER_VS_PLAYER; // Default mode
+    // String fen = "8/8/8/6p1/7p/4k2P/5R1K/r7 b - - 0 1";
+    String fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+
     public enum GameMode {
         PLAYER_VS_PLAYER,
         PLAYER_VS_COMPUTER,
@@ -36,47 +39,51 @@ public class Board extends JPanel {
         this.setBackground(lightBrown);
         this.addMouseListener(input);
         this.addMouseMotionListener(input);
-        addPieces();
+        setBoardFromFEN(fen);
     }
 
-    public void addPieces() {
-        pieceList.add(new Rook(this, 0, 0, false));
-        pieceList.add(new Knight(this, 1, 0, false));
-        pieceList.add(new Bishop(this, 2, 0, false));
-        pieceList.add(new Queen(this, 3, 0, false));
-        pieceList.add(new King(this, 4, 0, false));
-        pieceList.add(new Bishop(this, 5, 0, false));
-        pieceList.add(new Knight(this, 6, 0, false));
-        pieceList.add(new Rook(this, 7, 0, false));
+    public void setBoardFromFEN(String fen) {
+        String[] parts = fen.split(" ");
 
-        pieceList.add(new Pawn(this, 0, 1, false));
-        pieceList.add(new Pawn(this, 1, 1, false));
-        pieceList.add(new Pawn(this, 2, 1, false));
-        pieceList.add(new Pawn(this, 3, 1, false));
-        pieceList.add(new Pawn(this, 4, 1, false));
-        pieceList.add(new Pawn(this, 5, 1, false));
-        pieceList.add(new Pawn(this, 6, 1, false));
-        pieceList.add(new Pawn(this, 7, 1, false));
+        // Clear the existing piece list
+        pieceList.clear();
 
-        pieceList.add(new Rook(this, 0, 7, true));
-        pieceList.add(new Knight(this, 1, 7, true));
-        pieceList.add(new Bishop(this, 2, 7, true));
-        pieceList.add(new Queen(this, 3, 7, true));
-        pieceList.add(new King(this, 4, 7, true));
-        pieceList.add(new Bishop(this, 5, 7, true));
-        pieceList.add(new Knight(this, 6, 7, true));
-        pieceList.add(new Rook(this, 7, 7, true));
-
-        pieceList.add(new Pawn(this, 0, 6, true));
-        pieceList.add(new Pawn(this, 1, 6, true));
-        pieceList.add(new Pawn(this, 2, 6, true));
-        pieceList.add(new Pawn(this, 3, 6, true));
-        pieceList.add(new Pawn(this, 4, 6, true));
-        pieceList.add(new Pawn(this, 5, 6, true));
-        pieceList.add(new Pawn(this, 6, 6, true));
-        pieceList.add(new Pawn(this, 7, 6, true));
-
-        whiteTurn = true;
+        // Parse piece positions
+        String[] rows = parts[0].split("/");
+        for (int i = 0; i < 8; i++) {
+            String row = rows[i];
+            int col = 0;
+            for (char c : row.toCharArray()) {
+                if (Character.isDigit(c)) {
+                    col += Character.getNumericValue(c);
+                } else {
+                    boolean isWhite = Character.isUpperCase(c);
+                    char piece = Character.toLowerCase(c);
+                    switch (piece) {
+                        case 'p':
+                            pieceList.add(new Pawn(this, col, i, isWhite));
+                            break;
+                        case 'r':
+                            pieceList.add(new Rook(this, col, i, isWhite));
+                            break;
+                        case 'n':
+                            pieceList.add(new Knight(this, col, i, isWhite));
+                            break;
+                        case 'b':
+                            pieceList.add(new Bishop(this, col, i, isWhite));
+                            break;
+                        case 'q':
+                            pieceList.add(new Queen(this, col, i, isWhite));
+                            break;
+                        case 'k':
+                            pieceList.add(new King(this, col, i, isWhite));
+                            break;
+                    }
+                    col++;
+                }
+            }
+        }
+        whiteTurn = parts[1].equals("w");
     }
 
     public void paintComponent(Graphics g) {
@@ -270,12 +277,25 @@ public class Board extends JPanel {
         return false;
     }
     public Move chooseComputerMove() {
-        ArrayList<Move> moves = generateMoves();
-        if (!moves.isEmpty()) {
-            Random random = new Random();
-            return moves.get(random.nextInt(moves.size()));
+        ArrayList<Move> prioritizedMoves = prioritizeMoves(); // Prioritize moves
+        int depth = 3; // Set the depth for the search algorithm
+        int alpha = Integer.MIN_VALUE;
+        int beta = Integer.MAX_VALUE;
+        int maxEval = Integer.MIN_VALUE;
+        Move bestMove = null;
+
+        for (Move move : prioritizedMoves) {
+            makeMove(move); // Make the move on a temporary board
+            int eval = search(depth - 1, alpha, beta, false); // Perform alpha-beta search
+            undoMove(move); // Undo the move
+
+            if (eval > maxEval) {
+                maxEval = eval;
+                bestMove = move;
+            }
         }
-        return null; // No valid moves found
+
+        return bestMove;
     }
     private ArrayList<Move> generateMoves() {
         ArrayList<Move> moves = new ArrayList<>();
@@ -309,4 +329,171 @@ public class Board extends JPanel {
     public void computerVsComputerMode() {
         setMode(GameMode.COMPUTER_VS_COMPUTER);
     }
+    public int evaluatePosition() {
+        int whiteMaterial = 0;
+        int blackMaterial = 0;
+
+        // Calculate material value for each side
+        for (Pieces piece : pieceList) {
+            if (piece.isWhite) {
+                whiteMaterial += getValue(piece);
+            } else {
+                blackMaterial += getValue(piece);
+            }
+        }
+
+        // Calculate material advantage
+        int materialAdvantage = whiteMaterial - blackMaterial;
+
+        // Return evaluation based on material advantage
+        if (materialAdvantage > 0) {
+            return materialAdvantage; // White is doing better
+        } else if (materialAdvantage < 0) {
+            return materialAdvantage; // Black is doing better
+        } else {
+            return 0; // Even position
+        }
+    }
+
+    // Helper method to get the value of a piece
+    private int getValue(Pieces piece) {
+        switch (piece.name) {
+            case "Pawn":
+                return PAWN_VALUE;
+            case "Knight":
+                return KNIGHT_VALUE;
+            case "Bishop":
+                return BISHOP_VALUE;
+            case "Rook":
+                return ROOK_VALUE;
+            case "Queen":
+                return QUEEN_VALUE;
+            default:
+                return 0; // Unknown piece type
+        }
+    }
+    public int search(int depth, int alpha, int beta, boolean maximizingPlayer) {
+        if (depth == 0 || isGameOver()) {
+            System.out.println(evaluatePosition());
+            return evaluatePosition();
+        }
+
+        if (maximizingPlayer) {
+            int maxEval = Integer.MIN_VALUE;
+            for (Move move : generateMoves()) {
+                makeMove(move);
+                int eval = search(depth - 1, alpha, beta, false);
+                undoMove(move);
+                maxEval = Math.max(maxEval, eval);
+                alpha = Math.max(alpha, eval);
+                if (beta <= alpha) {
+                    break; // Beta cutoff
+                }
+            }
+            return maxEval;
+        } else {
+            int minEval = Integer.MAX_VALUE;
+            for (Move move : generateMoves()) {
+                makeMove(move);
+                int eval = search(depth - 1, alpha, beta, true);
+                undoMove(move);
+                minEval = Math.min(minEval, eval);
+                beta = Math.min(beta, eval);
+                if (beta <= alpha) {
+                    break; // Alpha cutoff
+                }
+            }
+            return minEval;
+        }
+    }
+    public boolean isGameOver() {
+        return isCheckmate(true) || isCheckmate(false);
+    }
+    public void undoMove(Move move) {
+        // Restore the piece's previous position
+        move.piece.col = move.oldCol;
+        move.piece.row = move.oldRow;
+        move.piece.xPos = move.oldCol * squareSize;
+        move.piece.yPos = move.oldRow * squareSize;
+
+        // If a captured piece was involved, restore it to the board
+        if (move.capture != null) {
+            pieceList.add(move.capture);
+        }
+    }
+    public ArrayList<Move> prioritizeMoves() {
+        ArrayList<Move> moves = generateMoves();
+        ArrayList<PriorityMove> prioritizedMoves = new ArrayList<>();
+
+        // Create a map to store the value of each opponent's piece type
+        Map<String, Integer> opponentPieceValues = new HashMap<>();
+        opponentPieceValues.put("Pawn", 1);
+        opponentPieceValues.put("Knight", 3);
+        opponentPieceValues.put("Bishop", 3);
+        opponentPieceValues.put("Rook", 5);
+        opponentPieceValues.put("Queen", 9);
+
+        // Iterate through all available moves
+        for (Move move : moves) {
+            int movePriority = 0;
+
+            // Check if the move involves capturing opponent's piece
+            if (move.capture != null) {
+                movePriority += opponentPieceValues.getOrDefault(move.capture.name, 0);
+            }
+
+            // Check if the move involves promoting a pawn
+            if (move.piece.name.equals("Pawn") && (move.newRow == 0 || move.newRow == 7)) {
+                movePriority += 10; // Promoting a pawn is given high priority
+            }
+
+            // Check if the move leads to our piece being attacked
+            if (isSquareAttacked(move.newCol, move.newRow, !move.piece.isWhite)) {
+                movePriority -= 5; // Penalize moves that lead to our piece being attacked
+            }
+
+            // Add the move along with its priority to the prioritizedMoves list
+            prioritizedMoves.add(new PriorityMove(move, movePriority));
+        }
+
+        // Sort moves based on their priority (higher priority moves come first)
+        prioritizedMoves.sort(Comparator.comparingInt(PriorityMove::getPriority).reversed());
+
+        // Extract the original moves from the PriorityMove objects
+        ArrayList<Move> finalMoves = new ArrayList<>();
+        for (PriorityMove priorityMove : prioritizedMoves) {
+            finalMoves.add(priorityMove.getMove());
+        }
+
+        return finalMoves;
+    }
+
+    // Check if the square at the specified position is attacked by the opponent
+    private boolean isSquareAttacked(int col, int row, boolean byWhite) {
+        for (Pieces piece : pieceList) {
+            if (piece.isWhite != byWhite && piece.isValidMovement(col, row) && piece.moveCollides(col, row)) {
+                return true;
+            }
+        }
+        return false;
+    }
+}
+// Helper class to represent a move along with its priority
+class PriorityMove {
+    private Move move;
+    private int priority;
+
+    public PriorityMove(Move move, int priority) {
+        this.move = move;
+        this.priority = priority;
+    }
+
+    public Move getMove() {
+        return move;
+    }
+
+    public int getPriority() {
+        return priority;
+    }
+
 }

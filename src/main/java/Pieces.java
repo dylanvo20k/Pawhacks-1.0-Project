@@ -15,6 +15,7 @@ public class Pieces {
     public boolean isFirstMove = true;
     Image sprite;
     Board board;
+
     public Pieces(Board board) {
         this.board = board;
     }
