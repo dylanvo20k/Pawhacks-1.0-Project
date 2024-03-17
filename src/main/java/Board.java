@@ -44,8 +44,18 @@ public class Board {
                 int pieceType = fenToPiece(Character.toUpperCase(c));
                 if (pieceType == Pieces.PAWN) {
                     SQUARE[row][col] = new Pawn(color);
+                } else if (pieceType == Pieces.BISHOP) {
+                    SQUARE[row][col] = new Bishop(color);
+                } else if (pieceType == Pieces.KNIGHT){
+                    SQUARE[row][col] = new Knight(color);
+                } else if (pieceType == Pieces.QUEEN){
+                    SQUARE[row][col] = new Queen(color);
+                } else if (pieceType == Pieces.KING){
+                    SQUARE[row][col] = new King(color);
+                } else if (pieceType == Pieces.ROOK){
+                    SQUARE[row][col] = new Rook(color);
                 } else {
-                    SQUARE[row][col] = new Pieces(pieceType, color);
+                    System.out.println("invalid FEN string");
                 }
                 SQUARE[row][col].setRow(row);
                 SQUARE[row][col].setCol(col);

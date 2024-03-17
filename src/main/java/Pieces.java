@@ -1,4 +1,4 @@
-public class Pieces {
+public abstract class Pieces {
     public static final int PAWN = 1;
     public static final int KNIGHT = 2;
     public static final int BISHOP = 3;
@@ -9,10 +9,10 @@ public class Pieces {
     public static final int WHITE = 7;
     public static final int BLACK = 8;
 
-    private int pieceType;
-    private int pieceColor;
-    private int col;
-    private int row;
+    protected int pieceType;
+    protected int pieceColor;
+    protected int col;
+    protected int row;
     boolean firstMove = true;
 
 
@@ -44,11 +44,6 @@ public class Pieces {
     public void setCol(int col) {
         this.col = col;
     }
-    public boolean isValidMove(int targetRow, int targetCol) {
-        if (Board.SQUARE[targetRow][targetCol] != null &&
-                Movement.isSameTeam(this, Board.SQUARE[targetRow][targetCol])) {
-            return false;
-        }
-        return true;
-    }
+    public abstract boolean isValidMove(int targetRow, int targetCol);
+
 }
