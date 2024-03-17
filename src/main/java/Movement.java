@@ -39,7 +39,15 @@ public class Movement {
 
         protected static void switchTurn() {
             Board.currentTurn = (Board.currentTurn == Turn.WHITE) ? Turn.BLACK : Turn.WHITE;
+            updateTurnLabel();
         }
+    private static void updateTurnLabel() {
+        if (Board.currentTurn == Turn.WHITE) {
+            Board.turnLabel.setText("White to move");
+        } else {
+            Board.turnLabel.setText("Black to move");
+        }
+    }
 
     protected static void highlightLegalMoves(Pieces piece) {
         for (int row = 0; row < Board.BOARD_SIZE; row++) {
