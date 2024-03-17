@@ -5,8 +5,6 @@ public class Rook extends Pieces {
 
     @Override
     public boolean isValidMove(int targetRow, int targetCol) {
-        int rowDiff = targetRow - row;
-        int colDiff = targetCol - col;
         // Check if the target square is occupied by a piece of the same team
         if (Board.SQUARE[targetRow][targetCol] != null &&
                 Movement.isSameTeam(this, Board.SQUARE[targetRow][targetCol])) {
