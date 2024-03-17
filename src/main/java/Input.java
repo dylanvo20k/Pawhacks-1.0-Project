@@ -32,7 +32,18 @@ public class Input extends MouseAdapter {
                 if (isCheckmate) {
                     board.displayCheckmateMessage(!board.whiteTurn);
                 }
-                if (!board.whiteTurn) {
+                if (board.mode == Board.GameMode.PLAYER_VS_COMPUTER && !board.whiteTurn) {
+                    Move computerMove = board.chooseComputerMove();
+                    if (computerMove != null) {
+                        board.makeMove(computerMove);
+                        board.nextTurn();
+                        boolean isComputerCheckmate = board.isCheckmate(board.whiteTurn);
+                        if (isComputerCheckmate) {
+                            board.displayCheckmateMessage(!board.whiteTurn);
+                        }
+                    }
+                }
+                else if (board.mode == Board.GameMode.COMPUTER_VS_COMPUTER && !board.whiteTurn) {
                     Move computerMove = board.chooseComputerMove();
                     if (computerMove != null) {
                         board.makeMove(computerMove);

@@ -23,6 +23,12 @@ public class Board extends JPanel {
     private Process stockfishProcess;
     private BufferedReader stockfishInput;
     private PrintWriter stockfishOutput;
+    GameMode mode = GameMode.PLAYER_VS_PLAYER; // Default mode
+    public enum GameMode {
+        PLAYER_VS_PLAYER,
+        PLAYER_VS_COMPUTER,
+        COMPUTER_VS_COMPUTER
+    }
 
 
     public Board() {
@@ -74,19 +80,21 @@ public class Board extends JPanel {
     }
 
     public void paintComponent(Graphics g) {
-        super.paintComponent(g); // Call the superclass method first
+        super.paintComponent(g);
 
         Graphics2D g2d = (Graphics2D) g;
 
-        // Draw the board squares
         for (int r = 0; r < rows; r++) {
             for (int c = 0; c < cols; c++) {
-                g2d.setColor((c + r) % 2 == 0 ? brown : lightBrown);
+                if ((c + r) % 2 == 0) {
+                    g2d.setColor(brown);
+                } else {
+                    g2d.setColor(lightBrown);
+                }
                 g2d.fillRect(c * squareSize, r * squareSize, squareSize, squareSize);
             }
         }
 
-        // Highlight valid moves if a piece is selected
         if (selectedPiece != null) {
             for (int r = 0; r < rows; r++) {
                 for (int c = 0; c < cols; c++) {
@@ -284,7 +292,21 @@ public class Board extends JPanel {
                 }
             }
         }
-
         return moves;
+    }
+    public void setMode(GameMode mode) {
+        this.mode = mode;
+    }
+
+    public void playerVsPlayerMode() {
+        setMode(GameMode.PLAYER_VS_PLAYER);
+    }
+
+    public void playerVsComputerMode() {
+        setMode(GameMode.PLAYER_VS_COMPUTER);
+    }
+
+    public void computerVsComputerMode() {
+        setMode(GameMode.COMPUTER_VS_COMPUTER);
     }
 }
