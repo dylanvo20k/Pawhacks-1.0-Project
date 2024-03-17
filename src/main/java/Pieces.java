@@ -1,49 +1,33 @@
-public abstract class Pieces {
-    public static final int PAWN = 1;
-    public static final int KNIGHT = 2;
-    public static final int BISHOP = 3;
-    public static final int ROOK = 4;
-    public static final int QUEEN = 5;
-    public static final int KING = 6;
+import javax.imageio.ImageIO;
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 
-    public static final int WHITE = 7;
-    public static final int BLACK = 8;
+public class Pieces {
+    public int col, row;
+    public int xPos, yPos;
 
-    protected int pieceType;
-    protected int pieceColor;
-    protected int col;
-    protected int row;
-    boolean firstMove = true;
-
-
-    public Pieces(int pieceType, int pieceColor) {
-        this.pieceType = pieceType;
-        this.pieceColor = pieceColor;
-
+    public boolean isWhite;
+    public String name;
+    public int value;
+    Image sprite;
+    Board board;
+    public Pieces(Board board) {
+        this.board = board;
     }
-
-    public int getPieceType() {
-        return pieceType;
+    BufferedImage sheet;
+    {
+        try {
+             String path = "resources/pieces1.png";
+            sheet = ImageIO.read(new FileInputStream(path));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
-
-    public int getPieceColor() {
-        return pieceColor;
+    protected int sheetScale = sheet.getWidth() / 6;
+    public void paint(Graphics2D g2d) {
+        g2d.drawImage(sprite, xPos, yPos, null);
     }
-    public int getRow() {
-        return row;
-    }
-
-    public void setRow(int row) {
-        this.row = row;
-    }
-
-    public int getCol() {
-        return col;
-    }
-
-    public void setCol(int col) {
-        this.col = col;
-    }
-    public abstract boolean isValidMove(int targetRow, int targetCol);
 }
-

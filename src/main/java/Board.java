@@ -1,248 +1,108 @@
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
+import java.util.ArrayList;
 
-public class Board {
-    protected static final int BOARD_SIZE = 8;
-    protected static final int SQUARE_SIZE = 100; // Size of each square
-    private static final String ICONS_PATH = "resources/";
-    private static final String START_FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
-    protected static JPanel[][] squares = new JPanel[BOARD_SIZE][BOARD_SIZE];
-    protected static Pieces selectedPiece = null;
-    public static Turn currentTurn = Turn.WHITE;
-    static JLabel turnLabel;
+public class Board extends JPanel {
+    int rows = 8;
+    int cols = 8;
 
+    ArrayList<Pieces> pieceList = new ArrayList<>();
+    public int squareSize = 85;
 
-    // 2D array to represent pieces on the board
-    protected static Pieces[][] SQUARE = new Pieces[BOARD_SIZE][BOARD_SIZE];
+    Color lightBrown = new Color(135, 75, 45);
+    Color brown = new Color(222, 177, 155);
+    public Pieces selectedPiece;
+    Input input = new Input(this);
 
-    public static void main(String[] args) {
-        // Set initial pieces
-        initializeBoard(START_FEN);
-
-        SwingUtilities.invokeLater(Board::createAndShowGUI);
+    public Board() {
+        this.setPreferredSize(new Dimension(cols * squareSize, rows * squareSize));
+        this.setBackground(lightBrown);
+        this.addMouseListener(input);
+        this.addMouseMotionListener(input);
+        addPieces();
     }
 
-    // This method parses a FEN String (standard notation in chess) and translate it into a 2D array.
-    // Given a FEN String, it populates the array with pieces using the helper.
-    private static void initializeBoard(String fen) {
-        // Split FEN String Notation
-        String[] parts = fen.split(" ");
-        String boardState = parts[0];
+    public void addPieces() {
+        pieceList.add(new Rook(this, 0, 0, false));
+        pieceList.add(new Knight(this, 1, 0, false));
+        pieceList.add(new Bishop(this, 2, 0, false));
+        pieceList.add(new Queen(this, 3, 0, false));
+        pieceList.add(new King(this, 4, 0, false));
+        pieceList.add(new Bishop(this, 5, 0, false));
+        pieceList.add(new Knight(this, 6, 0, false));
+        pieceList.add(new Rook(this, 7, 0, false));
 
-        // Convert FEN notation to 2D array
-        int row = 0;
-        int col = 0;
-        for (char c : boardState.toCharArray()) {
-            if (c == '/') {
-                row++;
-                col = 0;
-            } else if (Character.isDigit(c)) {
-                int emptySpaces = Character.getNumericValue(c);
-                for (int i = 0; i < emptySpaces; i++) {
-                    SQUARE[row][col++] = null;
-                }
-            } else {
-                int color = Character.isUpperCase(c) ? Pieces.WHITE : Pieces.BLACK;
-                int pieceType = fenToPiece(Character.toUpperCase(c));
-                if (pieceType == Pieces.PAWN) {
-                    SQUARE[row][col] = new Pawn(color);
-                } else if (pieceType == Pieces.BISHOP) {
-                    SQUARE[row][col] = new Bishop(color);
-                } else if (pieceType == Pieces.KNIGHT) {
-                    SQUARE[row][col] = new Knight(color);
-                } else if (pieceType == Pieces.QUEEN) {
-                    SQUARE[row][col] = new Queen(color);
-                } else if (pieceType == Pieces.KING) {
-                    SQUARE[row][col] = new King(color);
-                } else if (pieceType == Pieces.ROOK) {
-                    SQUARE[row][col] = new Rook(color);
-                } else {
-                    System.out.println("invalid FEN string");
-                }
-                SQUARE[row][col].setRow(row);
-                SQUARE[row][col].setCol(col);
-                col++;
+        pieceList.add(new Pawn(this, 0, 1, false));
+        pieceList.add(new Pawn(this, 1, 1, false));
+        pieceList.add(new Pawn(this, 2, 1, false));
+        pieceList.add(new Pawn(this, 3, 1, false));
+        pieceList.add(new Pawn(this, 4, 1, false));
+        pieceList.add(new Pawn(this, 5, 1, false));
+        pieceList.add(new Pawn(this, 6, 1, false));
+        pieceList.add(new Pawn(this, 7, 1, false));
+
+        pieceList.add(new Rook(this, 0, 7, true));
+        pieceList.add(new Knight(this, 1, 7, true));
+        pieceList.add(new Bishop(this, 2, 7, true));
+        pieceList.add(new Queen(this, 3, 7, true));
+        pieceList.add(new King(this, 4, 7, true));
+        pieceList.add(new Bishop(this, 5, 7, true));
+        pieceList.add(new Knight(this, 6, 7, true));
+        pieceList.add(new Rook(this, 7, 7, true));
+
+        pieceList.add(new Pawn(this, 0, 6, true));
+        pieceList.add(new Pawn(this, 1, 6, true));
+        pieceList.add(new Pawn(this, 2, 6, true));
+        pieceList.add(new Pawn(this, 3, 6, true));
+        pieceList.add(new Pawn(this, 4, 6, true));
+        pieceList.add(new Pawn(this, 5, 6, true));
+        pieceList.add(new Pawn(this, 6, 6, true));
+        pieceList.add(new Pawn(this, 7, 6, true));
+    }
+
+    public void paintComponent(Graphics g) {
+        Graphics2D g2d = (Graphics2D) g;
+        for (int r = 0; r < rows; r++) {
+            for (int c = 0; c < cols; c++) {
+                g2d.setColor((c + r) % 2 == 0 ? brown : lightBrown);
+                g2d.fillRect(c * squareSize, r * squareSize, squareSize, squareSize);
+            }
+
+            for (Pieces piece : pieceList) {
+                piece.paint(g2d);
             }
         }
     }
 
-    // Helper method to convert FEN notation to piece type
-    private static int fenToPiece(char c) {
-        switch (c) {
-            case 'P':
-                return Pieces.PAWN;
-            case 'N':
-                return Pieces.KNIGHT;
-            case 'B':
-                return Pieces.BISHOP;
-            case 'R':
-                return Pieces.ROOK;
-            case 'Q':
-                return Pieces.QUEEN;
-            case 'K':
-                return Pieces.KING;
-            default:
-                return -1; // Invalid piece type
-        }
-    }
-
-    private static void createAndShowGUI() {
-        JFrame board = new JFrame("Chessboard");
-        board.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
-        JPanel boardPanel = new JPanel(new GridLayout(BOARD_SIZE, BOARD_SIZE));
-        addSquares(boardPanel);
-
-        board.getContentPane().add(boardPanel);
-        board.pack();
-        board.setVisible(true);
-
-        turnLabel = new JLabel("White to move");
-        turnLabel.setHorizontalAlignment(SwingConstants.CENTER);
-        board.getContentPane().add(turnLabel, BorderLayout.NORTH);
-
-        board.getContentPane().add(boardPanel);
-        board.pack();
-        board.setVisible(true);
-    }
-
-    private static void addSquares(JPanel panel) {
-        Color brown = new Color(135, 75, 45);
-        Color lightBrown = new Color(222, 177, 155);
-        for (int row = 0; row < BOARD_SIZE; row++) {
-            for (int col = 0; col < BOARD_SIZE; col++) {
-                JPanel square = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
-                square.setPreferredSize(new Dimension(SQUARE_SIZE, SQUARE_SIZE));
-                square.setBackground((row + col) % 2 == 0 ? lightBrown : brown);
-
-                final int r = row;
-                final int c = col;
-
-                square.addMouseListener(new MouseAdapter() {
-                    @Override
-                    public void mousePressed(MouseEvent e) {
-                        Movement.handleSquareClick(r, c);
-                    }
-                });
-
-                squares[row][col] = square;
-                panel.add(square);
-            }
-
-        }
-        Movement.updateBoard();
-    }
-
-
-    // Get the file path for the piece icon based on the piece type and color
-    protected static String getPieceImagePath(Pieces piece) {
-        String color = piece.getPieceColor() == Pieces.WHITE ? "white" : "black";
-        String type = "";
-        switch (piece.getPieceType()) {
-            case Pieces.PAWN:
-                type = "Pawn";
-                break;
-            case Pieces.KNIGHT:
-                type = "Knight";
-                break;
-            case Pieces.BISHOP:
-                type = "Bishop";
-                break;
-            case Pieces.ROOK:
-                type = "Rook";
-                break;
-            case Pieces.QUEEN:
-                type = "Queen";
-                break;
-            case Pieces.KING:
-                type = "King";
-                break;
-        }
-        // System.out.println(ICONS_PATH + color + type + ".png");
-        return ICONS_PATH + color + type + ".png";
-    }
-
-    public static boolean check(int pieceColor, int r, int c) {
-        Pieces[][] saveSquare = deepCopy(SQUARE);
-        Pieces king = null;
-        boolean found = false;
-        for (int row = 0; row < BOARD_SIZE; row++) {
-            for (int col = 0; col < BOARD_SIZE; col++) {
-                Pieces currPiece = SQUARE[row][col];
-                if (currPiece != null && currPiece instanceof King && currPiece.getPieceColor() == pieceColor) {
-                    king = currPiece;
-                    found = true;
-                    break;
-                }
-            }
-            if (found) {
-                break;
+    public Pieces getPiece(int col, int row) {
+        for (Pieces piece : pieceList) {
+            if (piece.col == col && piece.row == row) {
+                return piece;
             }
         }
-        if(king.getRow() != r || king.getCol() != c) {
-            SQUARE[r][c] = king;
-            SQUARE[king.getRow()][king.getCol()] = null;
-        }
-        king.setCol(c);
-        king.setRow(r);
-        for (int row = 0; row < BOARD_SIZE; row++) {
-            for (int col = 0; col < BOARD_SIZE; col++) {
-                Pieces currPiece = SQUARE[row][col];
-                if (currPiece != null && currPiece.getPieceColor() != pieceColor) {
-                    if (currPiece.isValidMove(r, c)) {
-                        SQUARE = deepCopy(saveSquare);
-                        return true;
-                    }
-                }
-            }
-        }
-        SQUARE = deepCopy(saveSquare);
-        return false;
+        return null;
     }
-    public static Pieces[][] deepCopy(Pieces[][] original) {
-
-        if (original == null) {
-            return null;
+    public boolean isValidMove(Move move) {
+        if (sameTeam(move.piece, move.capture)) {
+            return false;
         }
-
-        Pieces[][] newArray = new Pieces[original.length][original[0].length];
-        for (int r = 0; r < BOARD_SIZE; r++) {
-            for (int c = 0; c < BOARD_SIZE; c++) {
-                if (original[r][c] == null) {
-                    newArray[r][c] = null;
-                } else {
-                    Pieces p = original[r][c];
-                    if (p instanceof Pawn) {
-                        newArray[r][c] = new Pawn(p.getPieceColor());
-                        newArray[r][c].setRow(p.getRow());
-                        newArray[r][c].setCol(p.getCol());
-                    } else if (p instanceof Rook) {
-                        newArray[r][c] = new Rook(p.getPieceColor());
-                        newArray[r][c].setRow(p.getRow());
-                        newArray[r][c].setCol(p.getCol());
-                    } else if (p instanceof Knight) {
-                        newArray[r][c] = new Knight(p.getPieceColor());
-                        newArray[r][c].setRow(p.getRow());
-                        newArray[r][c].setCol(p.getCol());
-                    } else if (p instanceof Bishop) {
-                        newArray[r][c] = new Bishop(p.getPieceColor());
-                        newArray[r][c].setRow(p.getRow());
-                        newArray[r][c].setCol(p.getCol());
-                    } else if (p instanceof Queen) {
-                        newArray[r][c] = new Queen(p.getPieceColor());
-                        newArray[r][c].setRow(p.getRow());
-                        newArray[r][c].setCol(p.getCol());
-                    } else if (p instanceof King) {
-                        newArray[r][c] = new King(p.getPieceColor());
-                        newArray[r][c].setRow(p.getRow());
-                        newArray[r][c].setCol(p.getCol());
-                    }
-                    newArray[r][c].firstMove = p.firstMove;
-                }
-            }
+        return true;
+    }
+    public boolean sameTeam(Pieces p1, Pieces p2) {
+        if (p1 == null || p2 == null) {
+            return false;
         }
-        return newArray;
+        return p1.isWhite == p2.isWhite;
+    }
+    public void makeMove(Move move) {
+        move.piece.col = move.newCol;
+        move.piece.row = move.newRow;
+        move.piece.xPos = move.newCol * squareSize;
+        move.piece.yPos = move.newRow * squareSize;
+
+        capture(move);
+    }
+    public void capture(Move move) {
+        pieceList.remove(move.capture);
     }
 }

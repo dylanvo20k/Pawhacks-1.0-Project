@@ -1,20 +1,19 @@
-public class Knight extends Pieces{
-    public Knight(int pieceColor) {
+import java.awt.image.BufferedImage;
 
-        super(KNIGHT, pieceColor);
-    }
-    @Override
-    public boolean isValidMove(int targetRow, int targetCol) {
-        if (Board.SQUARE[targetRow][targetCol] != null &&
-                Movement.isSameTeam(this, Board.SQUARE[targetRow][targetCol])) {
-            return false;
-        }
-        int rowDiff = Math.abs(targetRow - row);
-        int colDiff = Math.abs(targetCol - col);
+public class Knight extends Pieces {
+    public Knight(Board board, int col, int row, boolean isWhite) {
+        super(board);
+        this.col = col;
+        this.row = row;
+        this.xPos = col * board.squareSize;
+        this.yPos = row * board.squareSize;
 
-        // A knight moves in a specific L shape, either two squares horizontally and one square vertically,
-        // or two squares vertically and one square horizontally.
-        return (rowDiff == 2 && colDiff == 1) || (rowDiff == 1 && colDiff == 2);
+        this.isWhite = isWhite;
+        this.name = "Knight";
+
+        this.sprite = sheet.getSubimage
+                (3 * sheetScale, isWhite ? 0 : sheetScale, sheetScale, sheetScale).getScaledInstance
+                (board.squareSize, board.squareSize, BufferedImage.SCALE_SMOOTH);
+
     }
 }
-
