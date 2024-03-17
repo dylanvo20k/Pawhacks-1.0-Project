@@ -11,6 +11,7 @@ public class Board {
     protected static JPanel[][] squares = new JPanel[BOARD_SIZE][BOARD_SIZE];
     protected static Pieces selectedPiece = null;
     public static Turn currentTurn = Turn.WHITE;
+    static JLabel turnLabel;
 
 
 
@@ -85,6 +86,14 @@ public class Board {
 
         JPanel boardPanel = new JPanel(new GridLayout(BOARD_SIZE, BOARD_SIZE));
         addSquares(boardPanel);
+
+        board.getContentPane().add(boardPanel);
+        board.pack();
+        board.setVisible(true);
+
+        turnLabel = new JLabel("White to move");
+        turnLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        board.getContentPane().add(turnLabel, BorderLayout.NORTH);
 
         board.getContentPane().add(boardPanel);
         board.pack();
