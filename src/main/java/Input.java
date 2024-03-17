@@ -28,6 +28,21 @@ public class Input extends MouseAdapter {
             if (board.isValidMove(move)) {
                 board.makeMove(move);
                 board.nextTurn();
+                boolean isCheckmate = board.isCheckmate(board.whiteTurn);
+                if (isCheckmate) {
+                    board.displayCheckmateMessage(!board.whiteTurn);
+                }
+                if (!board.whiteTurn) {
+                    Move computerMove = board.chooseComputerMove();
+                    if (computerMove != null) {
+                        board.makeMove(computerMove);
+                        board.nextTurn();
+                        boolean isComputerCheckmate = board.isCheckmate(board.whiteTurn);
+                        if (isComputerCheckmate) {
+                            board.displayCheckmateMessage(!board.whiteTurn);
+                        }
+                    }
+                }
             } else {
                 board.selectedPiece.xPos = board.selectedPiece.col * board.squareSize;
                 board.selectedPiece.yPos = board.selectedPiece.row * board.squareSize;

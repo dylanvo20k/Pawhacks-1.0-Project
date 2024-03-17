@@ -1,6 +1,9 @@
 import javax.swing.*;
 import java.awt.*;
+import java.io.BufferedReader;
+import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Random;
 
 public class Board extends JPanel {
     int rows = 8;
@@ -16,7 +19,10 @@ public class Board extends JPanel {
 
     public int enPassantTile = -1;
     public CheckScanner checkScanner = new CheckScanner(this);
-    private boolean whiteTurn = true;
+    protected boolean whiteTurn = true;
+    private Process stockfishProcess;
+    private BufferedReader stockfishInput;
+    private PrintWriter stockfishOutput;
 
 
     public Board() {
@@ -96,6 +102,10 @@ public class Board extends JPanel {
         for (Pieces piece : pieceList) {
             piece.paint(g2d);
         }
+    }
+    public void displayCheckmateMessage(boolean isWhite) {
+        String message = isWhite ? "White is checkmated!" : "Black is checkmated!";
+        JOptionPane.showMessageDialog(this, message, "Checkmate", JOptionPane.INFORMATION_MESSAGE);
     }
 
 
@@ -207,5 +217,74 @@ public class Board extends JPanel {
     }
     public void nextTurn() {
         whiteTurn = !whiteTurn; // Switch turns
+    }
+    public boolean isCheckmate(boolean isWhite) {
+        if (checkScanner.isKingChecked(isWhite)) {
+            // Iterate through all pieces of the current player
+            for (Pieces piece : pieceList) {
+                if (piece.isWhite == isWhite) {
+                    // Check all possible moves for each piece
+                    for (int r = 0; r < rows; r++) {
+                        for (int c = 0; c < cols; c++) {
+                            Move move = new Move(this, piece, c, r);
+                            if (isValidMove(move)) {
+                                // Simulate the move
+                                makeMove(move);
+                                // If the king is no longer in check, return false (not checkmate)
+                                if (!checkScanner.isKingChecked(isWhite)) {
+                                    // Undo the move
+                                    piece.col = move.piece.col;
+                                    piece.row = move.piece.row;
+                                    piece.xPos = move.piece.xPos;
+                                    piece.yPos = move.piece.yPos;
+                                    if (move.capture != null) {
+                                        pieceList.add(move.capture);
+                                    }
+                                    return false;
+                                }
+                                // Undo the move
+                                piece.col = move.piece.col;
+                                piece.row = move.piece.row;
+                                piece.xPos = move.piece.xPos;
+                                piece.yPos = move.piece.yPos;
+                                if (move.capture != null) {
+                                    pieceList.add(move.capture);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            // If no move can get the king out of check, return true (checkmate)
+            return true;
+        }
+        // If the king is not in check, return false
+        return false;
+    }
+    public Move chooseComputerMove() {
+        ArrayList<Move> moves = generateMoves();
+        if (!moves.isEmpty()) {
+            Random random = new Random();
+            return moves.get(random.nextInt(moves.size()));
+        }
+        return null; // No valid moves found
+    }
+    private ArrayList<Move> generateMoves() {
+        ArrayList<Move> moves = new ArrayList<>();
+
+        for (Pieces piece : pieceList) {
+            if (piece.isWhite == whiteTurn) {
+                for (int r = 0; r < rows; r++) {
+                    for (int c = 0; c < cols; c++) {
+                        Move move = new Move(this, piece, c, r);
+                        if (isValidMove(move)) {
+                            moves.add(move);
+                        }
+                    }
+                }
+            }
+        }
+
+        return moves;
     }
 }

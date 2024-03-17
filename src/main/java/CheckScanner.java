@@ -101,5 +101,17 @@ public class CheckScanner {
     private boolean checkPawn(Pieces p, Pieces k, int col, int row) {
         return p != null && !board.sameTeam(p, k) && p.name.equals("Pawn") && !(p.col == col && p.row == row);
     }
+    public boolean isKingChecked(boolean isWhite) {
+        Pieces king = board.findKing(isWhite);
+
+        // Iterate through all opponent pieces and check if any can capture the king
+        for (Pieces piece : board.pieceList) {
+            if (piece.isWhite != isWhite && board.isValidMove(new Move(board, piece, king.col, king.row))) {
+                return true;
+            }
+        }
+
+        return false;
+    }
 
 }
