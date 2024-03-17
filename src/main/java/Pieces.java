@@ -13,7 +13,7 @@ public class Pieces {
     private int pieceColor;
     private int col;
     private int row;
-    private boolean firstMove = true;
+    boolean firstMove = true;
 
 
     public Pieces(int pieceType, int pieceColor) {
@@ -43,5 +43,12 @@ public class Pieces {
 
     public void setCol(int col) {
         this.col = col;
+    }
+    public boolean isValidMove(int targetRow, int targetCol) {
+        if (Board.SQUARE[targetRow][targetCol] != null &&
+                Movement.isSameTeam(this, Board.SQUARE[targetRow][targetCol])) {
+            return false;
+        }
+        return true;
     }
 }

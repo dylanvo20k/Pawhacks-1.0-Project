@@ -42,12 +42,11 @@ public class Board {
             } else {
                 int color = Character.isUpperCase(c) ? Pieces.WHITE : Pieces.BLACK;
                 int pieceType = fenToPiece(Character.toUpperCase(c));
-                if (pieceType == Pieces.BISHOP) {
-                    SQUARE[row][col] = new Bishop(color);
+                if (pieceType == Pieces.PAWN) {
+                    SQUARE[row][col] = new Pawn(color);
                 } else {
                     SQUARE[row][col] = new Pieces(pieceType, color);
                 }
-                SQUARE[row][col] = new Pieces(pieceType, color);
                 SQUARE[row][col].setRow(row);
                 SQUARE[row][col].setCol(col);
                 col++;
@@ -102,6 +101,7 @@ public class Board {
                 squares[row][col] = square;
                 panel.add(square);
             }
+
         }
         Movement.updateBoard();
     }
