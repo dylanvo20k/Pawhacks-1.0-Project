@@ -16,6 +16,8 @@ public class Board extends JPanel {
 
     public int enPassantTile = -1;
     public CheckScanner checkScanner = new CheckScanner(this);
+    private boolean whiteTurn = true;
+
 
     public Board() {
         this.setPreferredSize(new Dimension(cols * squareSize, rows * squareSize));
@@ -61,6 +63,8 @@ public class Board extends JPanel {
         pieceList.add(new Pawn(this, 5, 6, true));
         pieceList.add(new Pawn(this, 6, 6, true));
         pieceList.add(new Pawn(this, 7, 6, true));
+
+        whiteTurn = true;
     }
 
     public void paintComponent(Graphics g) {
@@ -104,13 +108,16 @@ public class Board extends JPanel {
         return null;
     }
     public boolean isValidMove(Move move) {
+        if (move.piece.isWhite != whiteTurn) {
+            return false;
+        }
         if (sameTeam(move.piece, move.capture)) {
             return false;
         }
         if (!move.piece.isValidMovement(move.newCol, move.newRow)) {
             return false;
         }
-        if(move.piece.moveCollides(move.newCol, move.newRow)) {
+        if (move.piece.moveCollides(move.newCol, move.newRow)) {
             return false;
         }
         if (checkScanner.isKingChecked(move)) {
@@ -197,5 +204,8 @@ public class Board extends JPanel {
 
     public void capture(Pieces piece) {
         pieceList.remove(piece);
+    }
+    public void nextTurn() {
+        whiteTurn = !whiteTurn; // Switch turns
     }
 }

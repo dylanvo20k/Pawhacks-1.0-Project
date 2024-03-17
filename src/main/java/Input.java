@@ -23,10 +23,11 @@ public class Input extends MouseAdapter {
         int col = mouseEvent.getX() / board.squareSize;
         int row = mouseEvent.getY() / board.squareSize;
 
-        if(board.selectedPiece != null) {
+        if (board.selectedPiece != null) {
             Move move = new Move(board, board.selectedPiece, col, row);
             if (board.isValidMove(move)) {
                 board.makeMove(move);
+                board.nextTurn();
             } else {
                 board.selectedPiece.xPos = board.selectedPiece.col * board.squareSize;
                 board.selectedPiece.yPos = board.selectedPiece.row * board.squareSize;
