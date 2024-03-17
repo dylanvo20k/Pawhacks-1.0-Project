@@ -12,6 +12,7 @@ public class Pieces {
     public boolean isWhite;
     public String name;
     public int value;
+    public boolean isFirstMove = true;
     Image sprite;
     Board board;
     public Pieces(Board board) {

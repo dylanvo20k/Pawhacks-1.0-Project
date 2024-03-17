@@ -124,6 +124,8 @@ public class Board extends JPanel {
         move.piece.xPos = move.newCol * squareSize;
         move.piece.yPos = move.newRow * squareSize;
 
+        move.piece.isFirstMove = false;
+
         capture(move);
     }
     public void capture(Move move) {
