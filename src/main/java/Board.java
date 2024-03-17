@@ -14,15 +14,16 @@ public class Board {
     static JLabel turnLabel;
 
 
-
     // 2D array to represent pieces on the board
     protected static Pieces[][] SQUARE = new Pieces[BOARD_SIZE][BOARD_SIZE];
+
     public static void main(String[] args) {
         // Set initial pieces
         initializeBoard(START_FEN);
 
         SwingUtilities.invokeLater(Board::createAndShowGUI);
     }
+
     // This method parses a FEN String (standard notation in chess) and translate it into a 2D array.
     // Given a FEN String, it populates the array with pieces using the helper.
     private static void initializeBoard(String fen) {
@@ -49,13 +50,13 @@ public class Board {
                     SQUARE[row][col] = new Pawn(color);
                 } else if (pieceType == Pieces.BISHOP) {
                     SQUARE[row][col] = new Bishop(color);
-                } else if (pieceType == Pieces.KNIGHT){
+                } else if (pieceType == Pieces.KNIGHT) {
                     SQUARE[row][col] = new Knight(color);
-                } else if (pieceType == Pieces.QUEEN){
+                } else if (pieceType == Pieces.QUEEN) {
                     SQUARE[row][col] = new Queen(color);
-                } else if (pieceType == Pieces.KING){
+                } else if (pieceType == Pieces.KING) {
                     SQUARE[row][col] = new King(color);
-                } else if (pieceType == Pieces.ROOK){
+                } else if (pieceType == Pieces.ROOK) {
                     SQUARE[row][col] = new Rook(color);
                 } else {
                     System.out.println("invalid FEN string");
@@ -70,13 +71,20 @@ public class Board {
     // Helper method to convert FEN notation to piece type
     private static int fenToPiece(char c) {
         switch (c) {
-            case 'P': return Pieces.PAWN;
-            case 'N': return Pieces.KNIGHT;
-            case 'B': return Pieces.BISHOP;
-            case 'R': return Pieces.ROOK;
-            case 'Q': return Pieces.QUEEN;
-            case 'K': return Pieces.KING;
-            default: return -1; // Invalid piece type
+            case 'P':
+                return Pieces.PAWN;
+            case 'N':
+                return Pieces.KNIGHT;
+            case 'B':
+                return Pieces.BISHOP;
+            case 'R':
+                return Pieces.ROOK;
+            case 'Q':
+                return Pieces.QUEEN;
+            case 'K':
+                return Pieces.KING;
+            default:
+                return -1; // Invalid piece type
         }
     }
 
@@ -154,5 +162,87 @@ public class Board {
         }
         // System.out.println(ICONS_PATH + color + type + ".png");
         return ICONS_PATH + color + type + ".png";
+    }
+
+    public static boolean check(int pieceColor, int r, int c) {
+        Pieces[][] saveSquare = deepCopy(SQUARE);
+        Pieces king = null;
+        boolean found = false;
+        for (int row = 0; row < BOARD_SIZE; row++) {
+            for (int col = 0; col < BOARD_SIZE; col++) {
+                Pieces currPiece = SQUARE[row][col];
+                if (currPiece != null && currPiece instanceof King && currPiece.getPieceColor() == pieceColor) {
+                    king = currPiece;
+                    found = true;
+                    break;
+                }
+            }
+            if (found) {
+                break;
+            }
+        }
+        if(king.getRow() != r || king.getCol() != c) {
+            SQUARE[r][c] = king;
+            SQUARE[king.getRow()][king.getCol()] = null;
+        }
+        king.setCol(c);
+        king.setRow(r);
+        for (int row = 0; row < BOARD_SIZE; row++) {
+            for (int col = 0; col < BOARD_SIZE; col++) {
+                Pieces currPiece = SQUARE[row][col];
+                if (currPiece != null && currPiece.getPieceColor() != pieceColor) {
+                    if (currPiece.isValidMove(r, c)) {
+                        SQUARE = deepCopy(saveSquare);
+                        return true;
+                    }
+                }
+            }
+        }
+        SQUARE = deepCopy(saveSquare);
+        return false;
+    }
+    public static Pieces[][] deepCopy(Pieces[][] original) {
+
+        if (original == null) {
+            return null;
+        }
+
+        Pieces[][] newArray = new Pieces[original.length][original[0].length];
+        for (int r = 0; r < BOARD_SIZE; r++) {
+            for (int c = 0; c < BOARD_SIZE; c++) {
+                if (original[r][c] == null) {
+                    newArray[r][c] = null;
+                } else {
+                    Pieces p = original[r][c];
+                    if (p instanceof Pawn) {
+                        newArray[r][c] = new Pawn(p.getPieceColor());
+                        newArray[r][c].setRow(p.getRow());
+                        newArray[r][c].setCol(p.getCol());
+                    } else if (p instanceof Rook) {
+                        newArray[r][c] = new Rook(p.getPieceColor());
+                        newArray[r][c].setRow(p.getRow());
+                        newArray[r][c].setCol(p.getCol());
+                    } else if (p instanceof Knight) {
+                        newArray[r][c] = new Knight(p.getPieceColor());
+                        newArray[r][c].setRow(p.getRow());
+                        newArray[r][c].setCol(p.getCol());
+                    } else if (p instanceof Bishop) {
+                        newArray[r][c] = new Bishop(p.getPieceColor());
+                        newArray[r][c].setRow(p.getRow());
+                        newArray[r][c].setCol(p.getCol());
+                    } else if (p instanceof Queen) {
+                        newArray[r][c] = new Queen(p.getPieceColor());
+                        newArray[r][c].setRow(p.getRow());
+                        newArray[r][c].setCol(p.getCol());
+                    } else if (p instanceof King) {
+                        newArray[r][c] = new King(p.getPieceColor());
+                        newArray[r][c].setRow(p.getRow());
+                        newArray[r][c].setCol(p.getCol());
+                    }
+                    newArray[r][c].firstMove = p.firstMove;
+                }
+            }
+        }
+        return newArray;
     }
 }
