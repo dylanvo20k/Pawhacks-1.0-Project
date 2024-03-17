@@ -15,6 +15,7 @@ public class Board extends JPanel {
     Input input = new Input(this);
 
     public int enPassantTile = -1;
+    public CheckScanner checkScanner = new CheckScanner(this);
 
     public Board() {
         this.setPreferredSize(new Dimension(cols * squareSize, rows * squareSize));
@@ -112,6 +113,9 @@ public class Board extends JPanel {
         if(move.piece.moveCollides(move.newCol, move.newRow)) {
             return false;
         }
+        if (checkScanner.isKingChecked(move)) {
+            return false;
+        }
         return true;
     }
     public boolean sameTeam(Pieces p1, Pieces p2) {
@@ -121,6 +125,16 @@ public class Board extends JPanel {
         return p1.isWhite == p2.isWhite;
     }
 
+
+    Pieces findKing(boolean isWhite) {
+        for (Pieces piece : pieceList) {
+            if (isWhite == piece.isWhite && piece.name.equals("King")) {
+                return piece;
+            }
+        }
+        return null;
+    }
+
     public int getTileNum(int col, int row) {
         return row * rows + col;
     }
@@ -128,7 +142,9 @@ public class Board extends JPanel {
     public void makeMove(Move move) {
         if (move.piece.name.equals("Pawn")) {
             movePawn(move);
-        } else {
+        } else if (move.piece.name.equals("King")) {
+            moveKing((move));
+        }
             move.piece.col = move.newCol;
             move.piece.row = move.newRow;
             move.piece.xPos = move.newCol * squareSize;
@@ -137,7 +153,6 @@ public class Board extends JPanel {
             move.piece.isFirstMove = false;
 
             capture(move.capture);
-        }
     }
 
     private void movePawn(Move move) {
@@ -159,15 +174,20 @@ public class Board extends JPanel {
         if (move.newRow == colorIndex) {
             promotePawn(move);
         }
+    }
 
-        move.piece.col = move.newCol;
-        move.piece.row = move.newRow;
-        move.piece.xPos = move.newCol * squareSize;
-        move.piece.yPos = move.newRow * squareSize;
-
-        move.piece.isFirstMove = false;
-
-        capture(move.capture);
+    private void moveKing(Move move) {
+        if (Math.abs(move.piece.col - move.newCol) == 2) {
+            Pieces rook;
+            if (move.piece.col < move.newCol) {
+                rook = getPiece(7, move.piece.row);
+                rook.col = 5;
+            } else {
+                rook = getPiece(0, move.piece.row);
+                rook.col = 3;
+            }
+            rook.xPos = rook.col * squareSize;
+        }
     }
 
     private void promotePawn(Move move) {
