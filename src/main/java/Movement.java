@@ -6,47 +6,41 @@ import java.io.FileInputStream;
 import java.io.IOException;
 
 public class Movement {
-    protected static void handleSquareClick(int row, int col) {
-        Pieces clickedPiece = Board.SQUARE[row][col];
-        if (Board.selectedPiece == null) {
-            if (clickedPiece != null) {
-                System.out.println("Selected is null and clicked is not null");
-                Board.selectedPiece = clickedPiece;
-                highlightLegalMoves(Board.selectedPiece);
+        protected static void handleSquareClick(int row, int col) {
+            Pieces clickedPiece = Board.SQUARE[row][col];
+            if (Board.selectedPiece == null) {
+                if (clickedPiece != null && clickedPiece.getPieceColor()
+                        == (Board.currentTurn == Turn.WHITE ? Pieces.WHITE : Pieces.BLACK)) {
+                    System.out.println("Selected is null and clicked is not null");
+                    Board.selectedPiece = clickedPiece;
+                    highlightLegalMoves(Board.selectedPiece);
+                } else {
+                    clickedPiece = null;
+                }
             } else {
-                clickedPiece = null;
-            }
-        } else {
-//            for (int c = 0; c < Board.BOARD_SIZE; c++) {
-//                System.out.println(c);
-//                for (int r = 0; r < Board.BOARD_SIZE; r++) {
-//                    JPanel square = Board.squares[row][col];
-//                    Color brown = new Color(135, 75, 45);
-//                    Color lightBrown = new Color(222, 177, 155);
-//                    square.removeAll();
-//                    square.setBackground((r + c) % 2 == 0 ? lightBrown : brown);
-//                    square.revalidate(); // Refresh square
-//                    square.repaint(); // Repaint square
-//                }
-//            }
-            if (Board.selectedPiece.isValidMove(row, col)
-                    && (clickedPiece == null || !isSameTeam(Board.selectedPiece, clickedPiece))) {
-                // Move the selected piece to the clicked square
-                Board.SQUARE[row][col] = Board.selectedPiece;
-                // System.out.println(Board.selectedPiece.getRow() + ", " + Board.selectedPiece.getCol());
-                Board.SQUARE[Board.selectedPiece.getRow()][Board.selectedPiece.getCol()] = null;
-                Board.SQUARE[row][col].setRow(row);
-                Board.SQUARE[row][col].setCol(col);
-                Board.SQUARE[row][col].firstMove = false;
-                Board.selectedPiece = null;
-                updateBoard();
-            } else {
-                Board.selectedPiece = null;
-                // Pieces on the same team, do not allow capturing
-                System.out.println("Cannot capture a piece on the same team.");
+                if (Board.selectedPiece.isValidMove(row, col)
+                        && (clickedPiece == null || !isSameTeam(Board.selectedPiece, clickedPiece))) {
+                    // Move the selected piece to the clicked square
+                    Board.SQUARE[row][col] = Board.selectedPiece;
+                    Board.SQUARE[Board.selectedPiece.getRow()][Board.selectedPiece.getCol()] = null;
+                    Board.SQUARE[row][col].setRow(row);
+                    Board.SQUARE[row][col].setCol(col);
+                    Board.SQUARE[row][col].firstMove = false;
+                    Board.selectedPiece = null;
+                    switchTurn();
+                    updateBoard();
+                } else {
+                    Board.selectedPiece = null;
+                    // Pieces on the same team, do not allow capturing
+                    System.out.println("Cannot capture a piece on the same team.");
+                }
             }
         }
-    }
+
+        protected static void switchTurn() {
+            Board.currentTurn = (Board.currentTurn == Turn.WHITE) ? Turn.BLACK : Turn.WHITE;
+        }
+
     protected static void highlightLegalMoves(Pieces piece) {
         for (int row = 0; row < Board.BOARD_SIZE; row++) {
             for (int col = 0; col < Board.BOARD_SIZE; col++) {

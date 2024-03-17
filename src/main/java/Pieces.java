@@ -45,5 +45,5 @@ public abstract class Pieces {
         this.col = col;
     }
     public abstract boolean isValidMove(int targetRow, int targetCol);
-
 }
+

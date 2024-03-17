@@ -10,6 +10,8 @@ public class Board {
     private static final String START_FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
     protected static JPanel[][] squares = new JPanel[BOARD_SIZE][BOARD_SIZE];
     protected static Pieces selectedPiece = null;
+    public static Turn currentTurn = Turn.WHITE;
+
 
 
     // 2D array to represent pieces on the board
