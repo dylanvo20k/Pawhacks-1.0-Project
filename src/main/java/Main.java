@@ -7,7 +7,7 @@ public class Main {
     public static void main(String[] args) {
         JFrame frame = new JFrame("Chess Game");
         frame.setLayout(new BorderLayout());
-        frame.setMinimumSize(new Dimension(400, 200));
+        frame.setMinimumSize(new Dimension(500, 500));
         frame.setLocationRelativeTo(null);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 

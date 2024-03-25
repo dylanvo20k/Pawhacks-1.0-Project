@@ -32,6 +32,15 @@ public class Input extends MouseAdapter {
                 if (isCheckmate) {
                     board.displayCheckmateMessage(!board.whiteTurn);
                 }
+                boolean isCheckBlack = board.checkScanner.isKingChecked(!board.whiteTurn); // Check if the opponent's king is in check
+                boolean isCheckmateBlack = board.isCheckmate(!board.whiteTurn); // Check if the opponent's king is checkmated
+                if (isCheckBlack && !isCheckmateBlack) {
+                    board.displayCheckMessage(!board.whiteTurn); // Display a message indicating that the opponent's king is in check
+                    System.out.println(isCheckBlack);
+                }
+                if (isCheckmateBlack) {
+                    board.displayCheckmateMessage(!board.whiteTurn); // Display checkmate message for the opponent
+                }
                 if (board.mode == Board.GameMode.PLAYER_VS_COMPUTER && !board.whiteTurn) {
                     Move computerMove = board.chooseComputerMove();
                     if (computerMove != null) {

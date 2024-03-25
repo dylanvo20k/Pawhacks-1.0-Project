@@ -1,6 +1,5 @@
 import javax.swing.*;
 import java.awt.*;
-import java.awt.List;
 import java.util.*;
 
 public class Board extends JPanel {
@@ -34,9 +33,10 @@ public class Board extends JPanel {
     }
 
 
+    
     public Board() {
         this.setPreferredSize(new Dimension(cols * squareSize, rows * squareSize));
-        this.setBackground(lightBrown);
+        this.setBackground(Color.WHITE);
         this.addMouseListener(input);
         this.addMouseMotionListener(input);
         setBoardFromFEN(fen);
@@ -121,6 +121,10 @@ public class Board extends JPanel {
     public void displayCheckmateMessage(boolean isWhite) {
         String message = isWhite ? "White is checkmated!" : "Black is checkmated!";
         JOptionPane.showMessageDialog(this, message, "Checkmate", JOptionPane.INFORMATION_MESSAGE);
+    }
+    public void displayCheckMessage(boolean isWhite) {
+        String message = isWhite ? "White is in check." : "Black is in check.";
+        JOptionPane.showMessageDialog(this, message, "Check", JOptionPane.INFORMATION_MESSAGE);
     }
 
 

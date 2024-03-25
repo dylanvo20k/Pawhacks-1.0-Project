@@ -110,8 +110,6 @@ public class CheckScanner {
                 return true;
             }
         }
-
         return false;
     }
-
 }
