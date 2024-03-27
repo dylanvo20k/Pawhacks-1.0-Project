@@ -106,8 +106,14 @@ public class CheckScanner {
 
         // Iterate through all opponent pieces and check if any can capture the king
         for (Pieces piece : board.pieceList) {
-            if (piece.isWhite != isWhite && board.isValidMove(new Move(board, piece, king.col, king.row))) {
-                return true;
+            if (piece.isWhite != isWhite) {
+                // if piece is king then position will be different after move. use new position.
+                boolean isKing = piece.equals(king);
+                int col = isKing ? piece.col : king.col;
+                int row = isKing ? piece.row : king.row;
+                if (board.isValidMove(new Move(board, piece, col, row), true)) {
+                    return true;
+                }
             }
         }
         return false;

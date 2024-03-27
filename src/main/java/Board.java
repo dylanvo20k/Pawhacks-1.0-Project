@@ -33,7 +33,6 @@ public class Board extends JPanel {
     }
 
 
-    
     public Board() {
         this.setPreferredSize(new Dimension(cols * squareSize, rows * squareSize));
         this.setBackground(Color.WHITE);
@@ -136,7 +135,7 @@ public class Board extends JPanel {
         }
         return null;
     }
-    public boolean isValidMove(Move move) {
+    public boolean isValidMove(Move move, boolean includeKingCapture) {
         if (move.piece.isWhite != whiteTurn) {
             return false;
         }
@@ -149,10 +148,16 @@ public class Board extends JPanel {
         if (move.piece.moveCollides(move.newCol, move.newRow)) {
             return false;
         }
+        if (!includeKingCapture && move.capture != null && move.capture.name.equals("King")) {
+            return false;
+        }
         if (checkScanner.isKingChecked(move)) {
             return false;
         }
         return true;
+    }
+    public boolean isValidMove(Move move) {
+        return isValidMove(move, false);
     }
     public boolean sameTeam(Pieces p1, Pieces p2) {
         if (p1 == null || p2 == null) {
@@ -439,6 +444,9 @@ public class Board extends JPanel {
 
         // Iterate through all available moves
         for (Move move : moves) {
+            if (!isValidMove(move)) {
+                continue;
+            }
             int movePriority = 0;
 
             // Check if the move involves capturing opponent's piece
@@ -455,11 +463,17 @@ public class Board extends JPanel {
             if (isSquareAttacked(move.newCol, move.newRow, !move.piece.isWhite)) {
                 movePriority -= 5; // Penalize moves that lead to our piece being attacked
             }
-
+            if (checkScanner.isKingChecked(!move.piece.isWhite)) {
+                movePriority -= Integer.MIN_VALUE; // Move the king out of check is highest priority
+            }
+            makeMove(move); // Make the move temporarily
+            if (checkScanner.isKingChecked(!move.piece.isWhite)) {
+                movePriority += Integer.MAX_VALUE; // Penalize moves that result in check for the opponent
+            }
+            undoMove(move);
             // Add the move along with its priority to the prioritizedMoves list
             prioritizedMoves.add(new PriorityMove(move, movePriority));
         }
-
         // Sort moves based on their priority (higher priority moves come first)
         prioritizedMoves.sort(Comparator.comparingInt(PriorityMove::getPriority).reversed());
 
